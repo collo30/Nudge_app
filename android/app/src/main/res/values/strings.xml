@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Nudge</string>
+    <string name="title_activity_main">Nudge</string>
+    <string name="package_name">com.nudge.app</string>
+    <string name="custom_url_scheme">com.nudge.app</string>
+    <string name="shortcut_expense_short">Add Expense</string>
+    <string name="shortcut_expense_long">Log new expense</string>
+    <string name="shortcut_income_short">Add Income</string>
+    <string name="shortcut_income_long">Log new income</string>
+</resources>

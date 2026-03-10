@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kinetic Drift</title>
+    <!-- Prevent 404s -->
+    <link rel="icon" href="data:,">
+    <style>
+        :root {
+            --bg-color: #08080a;
+            --text-primary: #ffffff;
+            --text-dim: #7a7a85;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #motion-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            pointer-events: auto;
+            mix-blend-mode: normal;
+        }
+
+        .clock-group {
+            display: flex;
+            align-items: baseline;
+            line-height: 0.9;
+        }
+
+        .time {
+            font-family: 'Segoe UI Variable Display', 'Segoe UI', sans-serif;
+            font-size: 20vw;
+            font-weight: 600;
+            letter-spacing: -0.04em;
+            color: #ffffff;
+            text-shadow: 0 10px 40px rgba(255, 150, 50, 0.2);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .status-line {
+            margin-top: 2rem;
+            font-family: 'Segoe UI Variable Text', 'Segoe UI', sans-serif;
+            /* Better for small text */
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: #ffffff;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        @media (max-width: 800px) {
+            .time {
+                font-size: 25vw;
+            }
+
+            .status-line {
+                font-size: 0.8rem;
+                letter-spacing: 0.3em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="motion-canvas"></canvas>
+    <main class="container">
+        <div class="clock-group">
+            <div id="time" class="time">00:00</div>
+        </div>
+        <div class="status-line">
+            <span id="date">JANUARY 1</span>
+        </div>
+    </main>
+    <script>
+        // --- Clock Logic ---
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('time').innerText = `${hours}:${minutes}`;
+            const options = { weekday: 'long', month: 'long', day: 'numeric' };
+            document.getElementById('date').innerText = now.toLocaleDateString('en-US', options).toUpperCase();
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // --- Animation Logic (Global Drift) ---
+        const canvas = document.getElementById('motion-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, particles = [], time = 0;
+
+        function init() { window.addEventListener('resize', resize); resize(); loop(); }
+        function resize() { width = window.innerWidth; height = window.innerHeight; canvas.width = width; canvas.height = height; createGrid(); }
+
+        function createGrid() {
+            particles = [];
+            const spacing = 45;
+            const cols = Math.ceil(width / spacing) + 2;
+            const rows = Math.ceil(height / spacing) + 2;
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < rows; j++) {
+                    const x = (i * spacing) - (spacing / 2);
+                    const y = (j * spacing) - (spacing / 2);
+                    particles.push({
+                        baseX: x, baseY: y,
+                        nx: i / cols, ny: j / rows,
+                        offset: (i * 0.2) + (j * 0.1)
+                    });
+                }
+            }
+        }
+
+        function loop() {
+            ctx.fillStyle = '#08080a';
+            ctx.fillRect(0, 0, width, height);
+            time += 0.02;
+            const masterHue = (time * 10) % 360; // Global color drift
+
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                const range = 20;
+                const x = p.baseX + Math.cos(time + p.offset) * range;
+                const y = p.baseY + Math.sin(time + p.offset) * range;
+                const sMod = Math.sin(time + p.offset);
+                const radius = (sMod + 2) * 1.5;
+                const localVariation = (p.nx * 30) + (p.ny * 15);
+                const hue = masterHue + localVariation;
+                ctx.fillStyle = `hsla(${hue}, 85%, ${50 + (sMod * 10)}%, ${0.6 + (sMod * 0.4)})`;
+                ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI * 2); ctx.fill();
+            }
+            requestAnimationFrame(loop);
+        }
+        init();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+  <!-- Primary Meta Tags -->
+  <title>Nudge — A nudge to financial independence</title>
+  <meta name="title" content="Nudge — A nudge to financial independence" />
+  <meta name="description"
+    content="A gentle budgeting app that nudges you toward better money habits. Private, local-first, and beautifully crafted." />
+  <meta name="keywords"
+    content="budget, budgeting app, finance, money management, expense tracker, savings, zero-based budgeting" />
+  <meta name="author" content="Nudge" />
+
+  <!-- Android PWA / Mobile App Meta -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Nudge" />
+  <meta name="application-name" content="Nudge" />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fffdf5" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f172a" />
+  <meta name="msapplication-TileColor" content="#fffdf5" />
+
+  <!-- Open Graph / Social -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Nudge — A nudge to financial independence" />
+  <meta property="og:description" content="A gentle budgeting app that nudges you toward better money habits." />
+  <meta property="og:site_name" content="Nudge" />
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icon-192x192.png?v=2">
+  <link rel="icon" type="image/png" sizes="512x512" href="/icon-512x512.png?v=2">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icon-192x192.png?v=2">
+  <link rel="icon" type="image/png" href="/favicon.png?v=2">
+
+  <!-- Google Fonts: Lora (Legible Elegant) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&display=swap"
+    rel="stylesheet">
+
+  <!-- Styles (processed by Vite) -->
+  <link rel="stylesheet" href="/index.css">
+</head>
+
+<body
+  class="bg-[#fffdf5] dark:bg-slate-900 text-slate-800 dark:text-slate-100 antialiased selection:bg-yellow-200 selection:text-slate-900 overflow-hidden">
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('SW registered:', registration.scope);
+
+            // Check for updates
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  // New content is available
+                  console.log('New version available! Refresh to update.');
+                }
+              });
+            });
+          })
+          .catch((error) => {
+            console.log('SW registration failed:', error);
+          });
+      });
+    }
+  </script>
+</body>
+
+</html>
