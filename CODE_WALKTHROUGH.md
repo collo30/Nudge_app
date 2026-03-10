@@ -1,48 +1,48 @@
-# 📒 Nudge — Complete Codebase Walkthrough
+# Nudge — Complete Codebase Walkthrough
 
-> A beautiful, private-first, zero-based budgeting app built with **React 19**, **Vite**, **TypeScript**, **TailwindCSS**, and **Capacitor** for Android.  
+> A beautiful, private-first, zero-based budgeting app built with **React 19**, **Vite**, **TypeScript**, **TailwindCSS**, and **Capacitor** for Android. 
 > All data lives on-device (localStorage). No server. No cloud.
 
 ---
 
-## 🗂️ Project Structure at a Glance
+## Project Structure at a Glance
 
 ```
 nudge/
-├── index.html            ← App shell, PWA meta tags, service worker
-├── index.tsx             ← React entry point, font loading
-├── App.tsx               ← Root component: state, logic, navigation, layout (1353 lines)
-├── types.ts              ← All TypeScript interfaces and enums
-├── index.css             ← Global styles, TailwindCSS config, paper textures
-├── vite.config.ts        ← Build tool config, code splitting
-├── capacitor.config.ts   ← Android/iOS native app config
-├── package.json          ← Dependencies and scripts
+├── index.html ← App shell, PWA meta tags, service worker
+├── index.tsx ← React entry point, font loading
+├── App.tsx ← Root component: state, logic, navigation, layout
+├── types.ts ← All TypeScript interfaces and enums
+├── index.css ← Global styles, TailwindCSS config, paper textures
+├── vite.config.ts ← Build tool config, code splitting
+├── capacitor.config.ts ← Android/iOS native app config
+├── package.json ← Dependencies and scripts
 │
 ├── components/
-│   ├── Dashboard.tsx     ← Financial overview, tips, charts, goal tracker (891 lines)
-│   ├── Budget.tsx        ← Envelope budgeting interface (650 lines)
-│   ├── Transactions.tsx  ← Transaction log, modal, recurring bills (1310 lines)
-│   ├── Settings.tsx      ← App preferences: theme, security, goals (911 lines)
-│   ├── Onboarding.tsx    ← First-run wizard: name, PIN, currency (372 lines)
-│   ├── Walkthrough.tsx   ← Post-onboarding feature tour (207 lines)
-│   ├── PaydayRitual.tsx  ← Payday budget allocation modal (285 lines)
-│   ├── MiniCalendar.tsx  ← Reusable date selector (131 lines)
-│   └── NudgeLogo.tsx     ← App logo component (18 lines)
+│ ├── Dashboard.tsx ← Financial overview, tips, charts, goal tracker
+│ ├── Budget.tsx ← Envelope budgeting interface
+│ ├── Transactions.tsx ← Transaction log, modal, recurring bills
+│ ├── Settings.tsx ← App preferences: theme, security, goals
+│ ├── Onboarding.tsx ← First-run wizard: name, PIN, currency
+│ ├── Walkthrough.tsx ← Post-onboarding feature tour
+│ ├── PaydayRitual.tsx ← Payday budget allocation modal
+│ ├── MiniCalendar.tsx ← Reusable date selector
+│ └── NudgeLogo.tsx ← App logo component
 │
 ├── services/
-│   ├── db.ts             ← localStorage persistence layer
-│   └── biometric.ts      ← Fingerprint/Face ID authentication
+│ ├── db.ts ← localStorage persistence layer
+│ └── biometric.ts ← Fingerprint/Face ID authentication
 │
 ├── hooks/
-│   └── useHaptics.ts     ← Vibration/haptic feedback wrapper
+│ └── useHaptics.ts ← Vibration/haptic feedback wrapper
 │
 └── utils/
-    └── categoryEmojis.ts ← Auto-emoji detection + emoji picker list
+ └── categoryEmojis.ts ← Auto-emoji detection + emoji picker list
 ```
 
 ---
 
-## 📄 Configuration & Entry Files
+## Configuration & Entry Files
 
 ---
 
@@ -64,11 +64,11 @@ nudge/
 
 ```tsx
 // Loads 5 custom fonts from @fontsource (self-hosted Google Fonts)
-import '@fontsource/patrick-hand';    // "hand" theme — default handwritten
+import '@fontsource/patrick-hand'; // "hand" theme — default handwritten
 import '@fontsource/playfair-display'; // "serif" theme — editorial
-import '@fontsource/caveat';           // "casual" theme
-import '@fontsource/indie-flower';     // "cursive" theme
-import '@fontsource/inter';            // "sans" theme — clean modern
+import '@fontsource/caveat'; // "casual" theme
+import '@fontsource/indie-flower'; // "cursive" theme
+import '@fontsource/inter'; // "sans" theme — clean modern
 ```
 
 It mounts `<App />` inside `React.StrictMode` on the `#root` div.
@@ -88,11 +88,9 @@ It mounts `<App />` inside `React.StrictMode` on the `#root` div.
 | `@capacitor/haptics` | Vibration feedback |
 | `@capacitor/status-bar` | Android status bar control |
 | `capacitor-native-biometric` | Fingerprint/Face ID |
-| `@google/genai` | Gemini AI (referenced in the codebase) |
 | `recharts@3` | Area/bar charts on Dashboard |
 | `lucide-react` | Icon library (500+ SVG icons) |
 | `canvas-confetti` | Goal achievement celebration effect |
-| `markdown-to-jsx` | Render markdown in chat/walkthrough |
 | `tailwindcss@3` | Utility CSS framework |
 
 Scripts: `dev` (Vite dev server on port 3000), `build` (production bundle), `preview`.
@@ -105,10 +103,10 @@ Scripts: `dev` (Vite dev server on port 3000), `build` (production bundle), `pre
 - **Dev server:** `host: 0.0.0.0` — accessible on local network (useful for testing on a phone)
 - **API key injection:** `process.env.GEMINI_API_KEY` is injected at build time from `.env`
 - **Code splitting:** The production bundle is manually chunked into:
-  - `vendor-react` — React + ReactDOM
-  - `vendor-charts` — Recharts
-  - `vendor-icons` — Lucide React
-  - This prevents one giant bundle and gives better caching behaviour
+ - `vendor-react` — React + ReactDOM
+ - `vendor-charts` — Recharts
+ - `vendor-icons` — Lucide React
+ - This prevents one giant bundle and gives better caching behaviour
 
 ---
 
@@ -127,7 +125,7 @@ Scripts: `dev` (Vite dev server on port 3000), `build` (production bundle), `pre
 
 ---
 
-## 🔷 `types.ts` — The Data Model
+## `types.ts` — The Data Model
 
 **Role:** Single source of truth for every TypeScript type in the app. Contains no logic — pure type definitions.
 
@@ -143,16 +141,16 @@ A top-level budget group (e.g., "Needs", "Savings & Debt", "Wants"). Groups cont
 The central data structure for envelope budgeting.
 ```ts
 {
-  id: string;
-  groupId: string;
-  name: string;
-  emoji?: string;              // Custom icon (overrides auto-generated)
-  assignments: Record<string, number>; // { "2025-01": 500, "2025-02": 600 }
-  // Derived/calculated at runtime — NOT stored:
-  activity: number;            // Spending in the selected month
-  available: number;           // Cumulative balance (rollover from prev months)
-  assignedCurrent: number;     // Amount assigned THIS month
-  isVice?: boolean;            // If true, triggers "Vice Tax" penalty
+ id: string;
+ groupId: string;
+ name: string;
+ emoji?: string; // Custom icon (overrides auto-generated)
+ assignments: Record<string, number>; // { "2025-01": 500, "2025-02": 600 }
+ // Derived/calculated at runtime — NOT stored:
+ activity: number; // Spending in the selected month
+ available: number; // Cumulative balance (rollover from prev months)
+ assignedCurrent: number; // Amount assigned THIS month
+ isVice?: boolean; // If true, triggers "Vice Tax" penalty
 }
 ```
 The `assignments` object is the key to zero-based budgeting: money is allocated per month per category.
@@ -160,17 +158,17 @@ The `assignments` object is the key to zero-based budgeting: money is allocated 
 #### `Transaction`
 ```ts
 {
-  id: string;
-  date: string;                // "YYYY-MM-DD"
-  payee: string;
-  categoryId: string;          // Links to BudgetCategory.id
-  amount: number;              // NEGATIVE = expense, POSITIVE = income
-  memo?: string;
-  cleared: boolean;
-  sentimentScore?: number;     // 1-10 (Love Score — how much user valued the purchase)
-  isEssential?: boolean;       // Essential bills are excluded from regret analysis
-  isRecurring?: boolean;       // Auto-generated from a RecurringTransaction rule
-  recurringId?: string;        // Links back to parent RecurringTransaction
+ id: string;
+ date: string; // "YYYY-MM-DD"
+ payee: string;
+ categoryId: string; // Links to BudgetCategory.id
+ amount: number; // NEGATIVE = expense, POSITIVE = income
+ memo?: string;
+ cleared: boolean;
+ sentimentScore?: number; // 1-10 (Love Score — how much user valued the purchase)
+ isEssential?: boolean; // Essential bills are excluded from regret analysis
+ isRecurring?: boolean; // Auto-generated from a RecurringTransaction rule
+ recurringId?: string; // Links back to parent RecurringTransaction
 }
 ```
 
@@ -178,12 +176,12 @@ The `assignments` object is the key to zero-based budgeting: money is allocated 
 Defines a rule for auto-generating future transactions (bills, subscriptions, etc.).
 ```ts
 {
-  frequency: 'monthly' | 'weekly' | 'biweekly' | 'yearly';
-  dayOfMonth: number;          // For monthly/yearly: day 1-31; for weekly: 0=Sun, 6=Sat
-  monthOfYear?: number;        // For yearly: 0-11
-  nextDueDate: string;         // "YYYY-MM-DD" — when the next transaction will be generated
-  lastGeneratedDate?: string;  // Prevents double-generation
-  isActive: boolean;
+ frequency: 'monthly' | 'weekly' | 'biweekly' | 'yearly';
+ dayOfMonth: number; // For monthly/yearly: day 1-31; for weekly: 0=Sun, 6=Sat
+ monthOfYear?: number; // For yearly: 0-11
+ nextDueDate: string; // "YYYY-MM-DD" — when the next transaction will be generated
+ lastGeneratedDate?: string; // Prevents double-generation
+ isActive: boolean;
 }
 ```
 
@@ -191,21 +189,21 @@ Defines a rule for auto-generating future transactions (bills, subscriptions, et
 All user settings stored as a single object.
 ```ts
 {
-  name, currency, currencyCode, isOnboarded, startingBalance,
-  // Goal System:
-  financialGoal, goalTarget, goalDate, goalCategoryId,
-  // Theme:
-  theme: { paper, font, accentColor, darkMode },
-  // Security:
-  pin, biometricEnabled, skipLockForWidget,
-  // Preferences:
-  preferences: {
-    dateFormat, weekStart, showDecimals, compactMode,
-    animationSpeed, showRunningBalance, confirmBeforeDelete,
-    autoBackupReminder, privacyMode, blurAtStartup,
-    viceTaxPercentage   // Default 10%
-  },
-  nextPayday
+ name, currency, currencyCode, isOnboarded, startingBalance,
+ // Goal System:
+ financialGoal, goalTarget, goalDate, goalCategoryId,
+ // Theme:
+ theme: { paper, font, accentColor, darkMode },
+ // Security:
+ pin, biometricEnabled, skipLockForWidget,
+ // Preferences:
+ preferences: {
+ dateFormat, weekStart, showDecimals, compactMode,
+ animationSpeed, showRunningBalance, confirmBeforeDelete,
+ autoBackupReminder, privacyMode, blurAtStartup,
+ viceTaxPercentage // Default 10%
+ },
+ nextPayday
 }
 ```
 
@@ -213,11 +211,11 @@ All user settings stored as a single object.
 The "computed state" object derived from all raw data. Passed to every view component.
 ```ts
 {
-  groups, categories, transactions, currentMonth,
-  totalBudgeted, totalActivity, totalAvailable, readyToAssign,
-  userStats, userProfile, notifications,
-  goalProgress, goalPercentage, daysToGoal,
-  themeClasses   // Pre-computed CSS class strings for the current theme color
+ groups, categories, transactions, currentMonth,
+ totalBudgeted, totalActivity, totalAvailable, readyToAssign,
+ userStats, userProfile, notifications,
+ goalProgress, goalPercentage, daysToGoal,
+ themeClasses // Pre-computed CSS class strings for the current theme color
 }
 ```
 
@@ -240,16 +238,16 @@ enum View { DASHBOARD, BUDGET, TRANSACTIONS, SETTINGS }
 
 ---
 
-## 🗄️ `services/db.ts` — Persistence Layer
+## `services/db.ts` — Persistence Layer
 
 **Role:** Thin wrapper around `localStorage` for reading/writing the entire app database.
 
 ```ts
 const DB_KEY = 'pocket_budget_data_v1';
 
-loadDB(): AppDatabase | null   // Reads + JSON.parses from localStorage
-saveDB(data: AppDatabase): void  // JSON.stringifies + writes to localStorage  
-clearDB(): void                 // Removes the key (used for "Reset All Data")
+loadDB(): AppDatabase | null // Reads + JSON.parses from localStorage
+saveDB(data: AppDatabase): void // JSON.stringifies + writes to localStorage 
+clearDB(): void // Removes the key (used for "Reset All Data")
 ```
 
 **Design decisions:**
@@ -261,19 +259,19 @@ clearDB(): void                 // Removes the key (used for "Reset All Data")
 **Database schema (`AppDatabase`):**
 ```ts
 {
-  groups: CategoryGroup[];
-  categories: BudgetCategory[];
-  transactions: Transaction[];
-  userStats: UserStats;
-  userProfile: UserProfile;
-  notifications: Notification[];
-  recurringTransactions?: RecurringTransaction[];
+ groups: CategoryGroup[];
+ categories: BudgetCategory[];
+ transactions: Transaction[];
+ userStats: UserStats;
+ userProfile: UserProfile;
+ notifications: Notification[];
+ recurringTransactions?: RecurringTransaction[];
 }
 ```
 
 ---
 
-## 🔒 `services/biometric.ts` — Native Biometric Auth
+## `services/biometric.ts` — Native Biometric Auth
 
 **Role:** Wraps the `capacitor-native-biometric` plugin to authenticate via fingerprint, face, or iris.
 
@@ -288,16 +286,16 @@ Returns `{ isAvailable: false, biometryType: 'none' }` silently on error (web/em
 ### `authenticateWithBiometric(): Promise<boolean>`
 1. Checks availability first
 2. Calls `NativeBiometric.verifyIdentity()` with a system dialog:
-   - Title: "Unlock Pocket Budget"
-   - Fallback button: "Use PIN"
-   - Max attempts: 3
+ - Title: "Unlock Nudge"
+ - Fallback button: "Use PIN"
+ - Max attempts: 3
 3. Returns `true` if the user authenticates, `false` if they cancel or fail
 
 On web (no native plugin), `verifyIdentity()` throws and the `catch` returns `false` — safe to call anywhere.
 
 ---
 
-## 🎵 `hooks/useHaptics.ts` — Haptic Feedback
+## `hooks/useHaptics.ts` — Haptic Feedback
 
 **Role:** Semantic wrapper around `@capacitor/haptics` that maps the 6 impact/notification types to meaningful action names. Safe on web (all calls silently no-op).
 
@@ -305,24 +303,24 @@ On web (no native plugin), `verifyIdentity()` throws and the `catch` returns `fa
 const { light, medium, heavy, success, warning, error } = useHaptics();
 
 // Usage in components:
-// light()   → confirms minor interaction (tap a chip)
-// medium()  → confirms significant action (assign budget amount)
-// heavy()   → marks a major milestone (category fully funded)
+// light() → confirms minor interaction (tap a chip)
+// medium() → confirms significant action (assign budget amount)
+// heavy() → marks a major milestone (category fully funded)
 // success() → goal reached, transaction logged cleanly
 // warning() → category overspent, budget exceeded
-// error()   → invalid input, destructive action
+// error() → invalid input, destructive action
 ```
 
 The `safe()` helper catches any thrown error from the native layer (so web usage is always silent):
 ```ts
 const safe = (fn: () => Promise<void>) => {
-  fn().catch(() => { /* no-op on web */ });
+ fn().catch(() => { /* no-op on web */ });
 };
 ```
 
 ---
 
-## 🎨 `utils/categoryEmojis.ts` — Emoji Intelligence
+## `utils/categoryEmojis.ts` — Emoji Intelligence
 
 **Role:** Automatically assigns meaningful emojis to budget categories based on their names.
 
@@ -332,19 +330,19 @@ Implements a 3-priority keyword matching system:
 2. **Exact word match** (splits the category name into words)
 3. **Partial match** (only for keywords > 3 chars, to avoid matching "fun" inside "fund")
 
-Falls back to `📋` if no match is found.
+Falls back to `` if no match is found.
 
 **Coverage includes 80+ keyword mappings across 10 categories:**
-- 🏠 Housing & Utilities (rent, internet, gas, electric…)
-- 🚗 Transportation (car, bus, uber, fuel…)
-- 🛒 Food (groceries, restaurant, coffee, pizza…)
-- 🏥 Health (doctor, pharmacy, gym, dental…)
-- 🛡️ Insurance
-- 🎉 Entertainment (Netflix, Spotify, gaming, movies…)
-- 👗 Shopping & Personal Care
-- ✈️ Travel
-- 💰 Savings & Finance (emergency fund, debt, investments…)
-- 🎁 Gifts & Donations
+- Housing & Utilities (rent, internet, gas, electric…)
+- Transportation (car, bus, uber, fuel…)
+- Food (groceries, restaurant, coffee, pizza…)
+- Health (doctor, pharmacy, gym, dental…)
+- Insurance
+- Entertainment (Netflix, Spotify, gaming, movies…)
+- Shopping & Personal Care
+- Travel
+- Savings & Finance (emergency fund, debt, investments…)
+- Gifts & Donations
 
 ### `getCategoryDisplayEmoji(name, customEmoji?): string`
 If the user set a custom emoji, return it; otherwise fall back to `getDefaultEmoji`.
@@ -354,7 +352,7 @@ A curated array of 65 emojis organized into 3 groups (Needs, Wants, Savings) for
 
 ---
 
-## 🧠 `App.tsx` — The Brain (1353 lines)
+## `App.tsx` — The Brain
 
 **Role:** Root component. Owns ALL application state, computes `FinancialContext`, orchestrates navigation, and renders the layout shell.
 
@@ -382,16 +380,16 @@ A curated array of 65 emojis organized into 3 groups (Needs, Wants, Savings) for
 
 ```ts
 const THEME_COLORS: Record<AccentColor, ThemeClasses> = {
-  indigo: { primaryBg: 'bg-indigo-600', primaryText: 'text-indigo-700', hex: '#4f46e5', ... },
-  emerald: { ... },
-  rose:   { ... },
-  amber:  { ... },
-  violet: { ... },
-  cyan:   { ... }
+ indigo: { primaryBg: 'bg-indigo-600', primaryText: 'text-indigo-700', hex: '#4f46e5', ... },
+ emerald: { ... },
+ rose: { ... },
+ amber: { ... },
+ violet: { ... },
+ cyan: { ... }
 };
 ```
 
-The active theme is derived at render time:  
+The active theme is derived at render time: 
 `themeClasses = THEME_COLORS[userProfile.theme?.accentColor || 'amber']`
 
 ### Default Categories (50/30/20 Structure)
@@ -406,13 +404,13 @@ On first launch the app seeds 13 categories aligned with the 50/30/20 budgeting 
 #### 1. Dark Mode & Status Bar
 ```ts
 useEffect(() => {
-  if (isDark) {
-    document.documentElement.classList.add('dark');
-    StatusBar.setStyle({ style: Style.Dark });
-    StatusBar.setBackgroundColor({ color: '#00000000' }); // transparent
-  } else {
-    document.documentElement.classList.remove('dark');
-  }
+ if (isDark) {
+ document.documentElement.classList.add('dark');
+ StatusBar.setStyle({ style: Style.Dark });
+ StatusBar.setBackgroundColor({ color: '#00000000' }); // transparent
+ } else {
+ document.documentElement.classList.remove('dark');
+ }
 }, [userProfile.theme?.darkMode]);
 ```
 Keeps the Android status bar in sync with the app theme. Uses transparent background so web content draws behind it.
@@ -420,7 +418,7 @@ Keeps the Android status bar in sync with the app theme. Uses transparent backgr
 #### 2. Auto-Persistence
 ```ts
 useEffect(() => {
-  saveDB({ groups, categories, transactions, userStats, userProfile, notifications, recurringTransactions });
+ saveDB({ groups, categories, transactions, userStats, userProfile, notifications, recurringTransactions });
 }, [groups, categories, transactions, ...]);
 ```
 Every state change automatically saves to localStorage. No explicit "save" button needed.
@@ -448,11 +446,11 @@ This is the heart of the app — a memoized computation that derives all financi
 
 **For each category:**
 ```
-activityCurrent     = sum of transactions THIS month for this category
-cumulativeAssigned  = sum of all assignments UP THROUGH this month
-cumulativeActivity  = sum of all spending UP THROUGH this month
-available           = cumulativeAssigned + cumulativeActivity
-                      (negative spending reduces this balance)
+activityCurrent = sum of transactions THIS month for this category
+cumulativeAssigned = sum of all assignments UP THROUGH this month
+cumulativeActivity = sum of all spending UP THROUGH this month
+available = cumulativeAssigned + cumulativeActivity
+ (negative spending reduces this balance)
 ```
 
 **Envelope rollover:** money left over from previous months stays in the category's `available` balance. This is proper zero-based budgeting.
@@ -460,8 +458,8 @@ available           = cumulativeAssigned + cumulativeActivity
 **Ready to Assign:**
 ```
 lifetimeIncome = all income transactions up through selected month
-totalAssigned  = all category assignments up through selected month
-readyToAssign  = lifetimeIncome - totalAssigned
+totalAssigned = all category assignments up through selected month
+readyToAssign = lifetimeIncome - totalAssigned
 ```
 
 ### Action Handlers
@@ -493,9 +491,9 @@ A PIN-based lock screen with:
 ### Background (Paper Theme)
 ```ts
 const paperClass =
-  paper === 'lines' ? 'bg-paper-lines' :
-  paper === 'grid'  ? 'bg-paper-grid'  :
-  paper === 'dots'  ? 'bg-paper-dots'  : 'bg-paper-plain';
+ paper === 'lines' ? 'bg-paper-lines' :
+ paper === 'grid' ? 'bg-paper-grid' :
+ paper === 'dots' ? 'bg-paper-dots' : 'bg-paper-plain';
 ```
 These CSS classes are defined in `index.css` as repeating SVG/gradient patterns that give the app its distinctive "notebook paper" aesthetic.
 
@@ -503,21 +501,21 @@ These CSS classes are defined in `index.css` as repeating SVG/gradient patterns 
 After onboarding, the app renders a 3-layer layout:
 ```
 ┌─────────────────────────┐
-│  [Offline Banner]       │  ← amber bar, only when navigator.onLine = false
+│ [Offline Banner] │ ← amber bar, only when navigator.onLine = false
 ├─────────────────────────┤
-│                         │
-│   <main> (scrollable)   │  ← paper texture, left spine shadow effect
-│   ├── Spine shadow      │
-│   └── Active View       │
-│                         │
+│ │
+│ <main> (scrollable) │ ← paper texture, left spine shadow effect
+│ ├── Spine shadow │
+│ └── Active View │
+│ │
 ├─────────────────────────┤
-│  Bottom Nav (4 tabs)    │  ← Dashboard | Budget | Log | Settings
+│ Bottom Nav (4 tabs) │ ← Dashboard | Budget | Log | Settings
 └─────────────────────────┘
 ```
 
 ---
 
-## 🖥️ `components/Dashboard.tsx` — Financial Overview (891 lines)
+## `components/Dashboard.tsx` — Financial Overview
 
 **Role:** Read-only analytics view. Shows cash position, goals, spending habits, tips, budget breakdown, and trend charts.
 
@@ -575,7 +573,7 @@ Fires `canvas-confetti` from both sides of the screen for 3 seconds.
 
 ---
 
-## 💰 `components/Budget.tsx` — Envelope Budgeting (650 lines)
+## `components/Budget.tsx` — Envelope Budgeting
 
 **Role:** The core budgeting interface. Shows all categories grouped by group, lets users assign money, manage categories, and use productivity shortcuts.
 
@@ -594,7 +592,7 @@ A performance-optimized inline input for typing budget amounts:
 - **Category groups** — expandable/collapsible sections (uses a `Set<string>` for collapsed group IDs)
 - **Inline assignment** — each category row has an amount input, `Activity` and `Available` labels
 - **Overspent highlighting** — categories with negative `available` display in rose
-- **Vice Tax indicator** — categories flagged `isVice` show a 💀 skull icon
+- **Vice Tax indicator** — categories flagged `isVice` show a skull icon
 - **Emoji picker** — modal grid of 65 emojis to customize category icons
 - **Add category** — inline form within each group header
 - **Delete category** — trash icon with confirmation
@@ -602,14 +600,14 @@ A performance-optimized inline input for typing budget amounts:
 
 ### Available Balance Color Coding
 ```
-available > 0   → emerald (money left in envelope)
+available > 0 → emerald (money left in envelope)
 available === 0 → slate (perfectly spent)
-available < 0   → rose   (overspent — money owed)
+available < 0 → rose (overspent — money owed)
 ```
 
 ---
 
-## 📋 `components/Transactions.tsx` — Transaction Log (1310 lines)
+## `components/Transactions.tsx` — Transaction Log
 
 **Role:** Two-tab view: Transaction list + Recurring Bills management. Contains the main transaction entry modal.
 
@@ -621,17 +619,12 @@ The add/edit modal (rendered via `createPortal` to `document.body`) contains:
 - **Date field** — uses `DateSelector` component (MiniCalendar)
 - **Payee field** — text input with content-based suggestions
 - **Category carousel** — horizontal scrollable list of category chips sorted by usage frequency
-  - Most-used categories appear first based on transaction history count
-  - Includes a search bar to filter categories by name
+ - Most-used categories appear first based on transaction history count
+ - Includes a search bar to filter categories by name
 - **Memo field** — optional note
-- **Love Score (sentimentScore)** — 5 emoji buttons (😡 😕 😐 😊 🤩) that record how satisfied the user felt
-- **Essential toggle** — marks a transaction as essential (excluded from regret analysis)
+- **Love Score (sentimentScore)** — 5 emoji buttons () that record how satisfied the user felt
+- **Essential toggle** — marks a transaction as essential
 - **Edit mode** — pre-populates all fields when editing an existing transaction
-
-### Regret Radar
-When opening the modal for a payee that has a historically low sentiment score (average < 4):
-- Shows a warning: "⚠️ Regret Radar: You've regretted this payee before!"
-- User must explicitly confirm before logging the transaction
 
 ### Recurring Transactions Tab
 A separate sheet for managing standing orders/subscriptions:
@@ -656,7 +649,7 @@ Same `< Month >` pattern as Budget view — keeps both views in sync via `curren
 
 ---
 
-## ⚙️ `components/Settings.tsx` — App Configuration (911 lines)
+## `components/Settings.tsx` — App Configuration
 
 **Role:** Complete settings panel covering profile, goals, security, display, preferences, and data management.
 
@@ -699,7 +692,7 @@ Same `< Month >` pattern as Budget view — keeps both views in sync via `curren
 - Set the Vice Tax percentage (1%-50%, default 10%)
 
 #### Data Management
-- Export Data — downloads the entire database as a JSON file (`pocket-budget-export.json`)
+- Export Data — downloads the entire database as a JSON file (`nudge-export.json`)
 - Import Data — uploads and merges a previously exported JSON
 - Reset All Data — clears localStorage and returns to onboarding
 
@@ -708,7 +701,7 @@ Same `< Month >` pattern as Budget view — keeps both views in sync via `curren
 
 ---
 
-## 🎉 `components/Onboarding.tsx` — First-Run Wizard (372 lines)
+## `components/Onboarding.tsx` — First-Run Wizard
 
 **Role:** 4-step wizard shown only on first launch. Collects the minimal data needed to start budgeting.
 
@@ -731,7 +724,7 @@ Same `< Month >` pattern as Budget view — keeps both views in sync via `curren
 
 ---
 
-## 🚶 `components/Walkthrough.tsx` — Feature Tour (207 lines)
+## `components/Walkthrough.tsx` — Feature Tour
 
 **Role:** A 9-step modal carousel that introduces key app features right after onboarding.
 
@@ -739,12 +732,12 @@ Same `< Month >` pattern as Budget view — keeps both views in sync via `curren
 
 | # | Title | Concept | Accent |
 |---|-------|---------|--------|
-| 1 | Welcome to Pocket Budget | Local-first, private | Emerald |
+| 1 | Welcome to Nudge | Local-first, private | Emerald |
 | 2 | The Envelope Method | Digital envelope system | Indigo |
 | 3 | Give Every Dollar a Job | Zero-based budgeting | Blue |
 | 4 | Check Before Spending | Using category balances | Rose |
 | 5 | Total Contentment | Dashboard cash position | Amber |
-| 6 | Mindful Spending | Love Score + Regret Radar | Purple |
+| 6 | Mindful Spending | Love Score | Purple |
 | 7 | The Vice Tax | Habit change through penalty | Rose-dark |
 | 8 | Recur & Automate | Recurring transactions | Violet |
 | 9 | Your Private Vault | PIN, biometrics, privacy mode | Slate |
@@ -758,7 +751,7 @@ Same `< Month >` pattern as Budget view — keeps both views in sync via `curren
 
 ---
 
-## 🎂 `components/PaydayRitual.tsx` — Budget Allocation Modal (285 lines)
+## `components/PaydayRitual.tsx` — Budget Allocation Modal
 
 **Role:** A guided "put every dollar to work" flow triggered from the Transactions screen on payday.
 
@@ -787,16 +780,16 @@ Same `< Month >` pattern as Budget view — keeps both views in sync via `curren
 
 ---
 
-## 📅 `components/MiniCalendar.tsx` — Date Selector (131 lines)
+## `components/MiniCalendar.tsx` — Date Selector
 
 **Role:** A reusable 3-dropdown date picker (Month, Day, Year) used in the transaction modal and goal date field.
 
 ### Props
 ```ts
 {
-  value: string;        // "YYYY-MM-DD"
-  onChange: (date: string) => void;
-  maxDate?: string;     // Optional ceiling — disables future dates
+ value: string; // "YYYY-MM-DD"
+ onChange: (date: string) => void;
+ maxDate?: string; // Optional ceiling — disables future dates
 }
 ```
 
@@ -809,44 +802,44 @@ Same `< Month >` pattern as Budget view — keeps both views in sync via `curren
 
 ---
 
-## 🏷️ `components/PocketLogo.tsx` — Logo Component (18 lines)
+## `components/NudgeLogo.tsx` — Logo Component
 
 **Role:** Minimal wrapper that renders the app's icon image.
 
 ```tsx
-<img src="/icon-512.png?v=3" alt="Pocket Budget logo" />
+<img src="/icon-512.png?v=3" alt="Nudge logo" />
 ```
 
 The `?v=3` cache-busting query param ensures the latest icon is loaded after updates. Used in the splash screen, onboarding, and lock screen.
 
 ---
 
-## 📊 Architecture Summary
+## Architecture Summary
 
 ```
  ┌─────────────────────────────────────────────────────────────┐
- │                         App.tsx                             │
- │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────┐  │
- │  │  State   │ │ useMemo  │ │ Effects  │ │   Handlers   │  │
- │  │ groups   │ │financial │ │autosave  │ │addTransaction│  │
- │  │ cats     │ │  Context │ │recurring │ │updateCategory│  │
- │  │ txns     │ │ (derived)│ │darkMode  │ │copyBudget    │  │
- │  │ profile  │ │          │ │biometric │ │viceTax       │  │
- │  └──────────┘ └──────────┘ └──────────┘ └──────────────┘  │
- │                       │ passes context down                 │
- │  ┌──────────┬──────────┴─────────┬──────────┐             │
- │  │Dashboard │      Budget        │Transactions│Settings    │
- │  │ charts   │  BudgetInput  │   │  modal   │ │ prefs      │
- │  │ tips     │  emoji picker │   │  recurring│ │ security   │
- │  │ goal     │  vice tax     │   │  ritual   │ │ theme      │
- │  └──────────┴───────────────────┴──────────┴─┘            │
+ │ App.tsx │
+ │ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────┐ │
+ │ │ State │ │ useMemo │ │ Effects │ │ Handlers │ │
+ │ │ groups │ │financial │ │autosave │ │addTransaction│ │
+ │ │ cats │ │ Context │ │recurring │ │updateCategory│ │
+ │ │ txns │ │ (derived)│ │darkMode │ │copyBudget │ │
+ │ │ profile │ │ │ │biometric │ │viceTax │ │
+ │ └──────────┘ └──────────┘ └──────────┘ └──────────────┘ │
+ │ │ passes context down │
+ │ ┌──────────┬──────────┴─────────┬──────────┐ │
+ │ │Dashboard │ Budget │Transactions│Settings │
+ │ │ charts │ BudgetInput │ │ modal │ │ prefs │
+ │ │ tips │ emoji picker │ │ recurring│ │ security │
+ │ │ goal │ vice tax │ │ ritual │ │ theme │
+ │ └──────────┴───────────────────┴──────────┴─┘ │
  └─────────────────────────────────────────────────────────────┘
-          │                          │
-   services/db.ts            services/biometric.ts
-   (localStorage)             (Native Android)
-          │
-   hooks/useHaptics.ts
-   utils/categoryEmojis.ts
+ │ │
+ services/db.ts services/biometric.ts
+ (localStorage) (Native Android)
+ │
+ hooks/useHaptics.ts
+ utils/categoryEmojis.ts
 ```
 
 ### Data Flow
