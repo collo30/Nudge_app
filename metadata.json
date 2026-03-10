@@ -1,7 +1,0 @@
-{
-  "name": "Pocket Budget",
-  "description": "A mobile-first, AI-powered personal finance application inspired by YNAB. Features zero-based budgeting, real-time transaction tracking, and a Gemini-powered financial advisor.",
-  "requestFramePermissions": [
-    "microphone"
-  ]
-}
